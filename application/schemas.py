@@ -4,6 +4,7 @@ from datetime import datetime
 
 class CityBase(BaseModel):
     name: str
+    description: str = None
     additional_info: str = None
 
 

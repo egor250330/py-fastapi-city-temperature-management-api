@@ -47,12 +47,12 @@ def update_city(db: Session, city_id: int, city: schemas.CityCreate):
     return db_city
 
 
-@app.delete("/cities/{city_id}", response_model=schemas.City)
+@app.delete("/cities/{city_id}", response_model=dict)
 def delete_city(city_id: int, db: Session = Depends(get_db)):
-    db_city = crud.delete_city(db=db, city_id=city_id)
-    if db_city is None:
+    success = crud.delete_city(db=db, city_id=city_id)
+    if not success:
         raise HTTPException(status_code=404, detail="City not found")
-    return db_city
+    return {"success": True, "message": f"City with ID {city_id} has been deleted."}
 
 
 @app.post("/temperatures/update")
@@ -75,6 +75,6 @@ def get_temperatures(city_id: int = None, skip: int = 0, limit: int = 10, db: Se
     return query.offset(skip).limit(limit).all()
 
 
-@app.get("/temperatures/?city_id={city_id}", response_model=list[schemas.Temperature])
+@app.get("/temperatures", response_model=list[schemas.Temperature])
 def get_temperatures_by_city(city_id: int, db: Session = Depends(get_db)):
     return db.query(models.Temperature).filter(models.Temperature.city_id == city_id).all()

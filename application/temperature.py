@@ -4,12 +4,22 @@ from datetime import datetime
 from application import models, schemas
 
 
-async def fetch_temperature(city_name: str):
-    response = await httpx.get(f"http://api.openweathermap.org/data/2.5/weather?q={city_name}&appid=YOUR_API_KEY")
-    if response.status_code == 200:
-        data = response.json()
-        temperature = data["main"]["temp"] - 273.15
-        return temperature
+async def fetch_temperature(city_name: str, api_key: str) -> float | None:
+    url = "http://api.openweathermap.org/data/2.5/weather"
+    params = {"q": city_name, "appid": api_key}
+
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.get(url, params=params)
+            response.raise_for_status()
+            data = response.json()
+
+            if "main" in data and "temp" in data["main"]:
+                temperature = data["main"]["temp"] - 273.15
+                return temperature
+    except (httpx.RequestError, httpx.HTTPStatusError, KeyError) as e:
+        print(f"Error fetching temperature: {e}")
+
     return None
 
 async def update_temperatures(db: Session):

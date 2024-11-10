@@ -25,4 +25,4 @@ def delete_city(db: Session, city_id: int):
 
     db.delete(db_city)
     db.commit()
-    return {"success": True, "city": db_city}
+    return {"success": True, "message": f"City with ID {city_id} has been deleted."}
